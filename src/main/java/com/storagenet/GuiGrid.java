@@ -10,9 +10,9 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -21,10 +21,11 @@ import org.lwjgl.opengl.GL12;
 
 @SideOnly(Side.CLIENT)
 public class GuiGrid extends GuiContainer {
+    private static final ResourceLocation TEX = new ResourceLocation(StorageNet.MODID, "textures/gui/request.png");
     private static final int COLS = 9;
-    private static final int ROWS = 5;
-    private static final int LX = 17;
-    private static final int LY = 22;
+    private static final int ROWS = 4;
+    private static final int LX = 8;
+    private static final int LY = 8;
 
     private static class Row {
         StackEntry e;
@@ -42,8 +43,8 @@ public class GuiGrid extends GuiContainer {
     public GuiGrid(ContainerGrid c) {
         super(c);
         this.grid = c;
-        xSize = 194;
-        ySize = 206;
+        xSize = 176;
+        ySize = 256;
     }
 
     @Override
@@ -51,11 +52,12 @@ public class GuiGrid extends GuiContainer {
     public void initGui() {
         super.initGui();
         Keyboard.enableRepeatEvents(true);
-        search = new GuiTextField(fontRendererObj, guiLeft + 88, guiTop + 6, 86, 12);
+        search = new GuiTextField(fontRendererObj, guiLeft + 82, guiTop + 96, 86, 10);
+        search.setEnableBackgroundDrawing(false);
         search.setMaxStringLength(32);
         search.setFocused(false);
-        buttonList.add(new GuiButton(0, guiLeft + 180, guiTop + LY, 12, 20, "^"));
-        buttonList.add(new GuiButton(1, guiLeft + 180, guiTop + LY + ROWS * 18 - 20, 12, 20, "v"));
+        buttonList.add(new GuiButton(0, guiLeft + 8, guiTop + 93, 20, 14, "^"));
+        buttonList.add(new GuiButton(1, guiLeft + 30, guiTop + 93, 20, 14, "v"));
         seenVersion = -1;
         StorageNet.NET.sendToServer(new MessageGridClick(MessageGridClick.REFRESH, null));
     }
@@ -105,17 +107,17 @@ public class GuiGrid extends GuiContainer {
         if (scroll < 0) scroll = 0;
     }
 
-    private int indexAt(int mx, int my) {
-        int rx = mx - guiLeft - LX;
-        int ry = my - guiTop - LY;
-        if (rx < 0 || ry < 0 || rx >= COLS * 18 || ry >= ROWS * 18) return -1;
-        return (scroll + ry / 18) * COLS + rx / 18;
-    }
-
     private boolean inList(int mx, int my) {
         int rx = mx - guiLeft - LX;
         int ry = my - guiTop - LY;
         return rx >= 0 && ry >= 0 && rx < COLS * 18 && ry < ROWS * 18;
+    }
+
+    private int indexAt(int mx, int my) {
+        if (!inList(mx, my)) return -1;
+        int rx = mx - guiLeft - LX;
+        int ry = my - guiTop - LY;
+        return (scroll + ry / 18) * COLS + rx / 18;
     }
 
     private static String fmt(int n) {
@@ -128,15 +130,9 @@ public class GuiGrid extends GuiContainer {
     protected void drawGuiContainerBackgroundLayer(float pt, int mx, int my) {
         if (seenVersion != grid.version || !search.getText().equals(seenSearch)) rebuild();
 
-        GuiUtil.panel(guiLeft, guiTop, xSize, ySize);
-        for (int r = 0; r < ROWS; r++) {
-            for (int c = 0; c < COLS; c++) {
-                GuiUtil.cell(guiLeft + LX + c * 18, guiTop + LY + r * 18);
-            }
-        }
-        for (Object o : inventorySlots.inventorySlots) {
-            GuiUtil.slotCell(guiLeft, guiTop, (Slot) o);
-        }
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        mc.getTextureManager().bindTexture(TEX);
+        drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
 
         GL11.glPushMatrix();
         RenderHelper.enableGUIStandardItemLighting();
@@ -165,9 +161,9 @@ public class GuiGrid extends GuiContainer {
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
     protected void drawGuiContainerForegroundLayer(int mx, int my) {
-        fontRendererObj.drawString(StatCollector.translateToLocal("tile.storagenet.request.name"), LX, 8, 0x404040);
         if (grid.status != 0) {
-            fontRendererObj.drawSplitString(StatCollector.translateToLocal("gui.storagenet.status." + grid.status), LX + 4, LY + 4, 150, 0x8B0000);
+            fontRendererObj.drawSplitString(StatCollector.translateToLocal("gui.storagenet.status." + grid.status),
+                    LX + 4, LY + 4, 150, 0xFF8080);
         }
         int idx = indexAt(mx, my);
         if (idx >= 0 && idx < view.size()) {

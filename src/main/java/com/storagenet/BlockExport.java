@@ -9,7 +9,7 @@ import net.minecraft.world.World;
 /** Export Cable: clique direito com um item define o filtro. */
 public class BlockExport extends BlockNode {
     public BlockExport() {
-        super("export_cable", TileExport.class);
+        super("export_cable", TileExport.class, BlockNode.CABLE_INV);
     }
 
     @Override

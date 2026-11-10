@@ -6,16 +6,23 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.InventoryCraftResult;
+import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.network.play.server.S2FPacketSetSlot;
 import net.minecraft.world.World;
 
 public class ContainerGrid extends Container {
-    public static final int PX = 17;
-    public static final int PY = 124;
+    public static final int PX = 8;
+    public static final int PY = 174;
 
     private final EntityPlayer player;
+    private final InventoryCrafting craftMatrix = new InventoryCrafting(this, 3, 3);
+    private final IInventory craftResult = new InventoryCraftResult();
     private final World world;
     private final int x, y, z;
 
@@ -38,6 +45,12 @@ public class ContainerGrid extends Container {
         this.x = x;
         this.y = y;
         this.z = z;
+        addSlotToContainer(new SlotCrafting(player, craftMatrix, craftResult, 0, 101, 128));
+        for (int r = 0; r < 3; r++) {
+            for (int c = 0; c < 3; c++) {
+                addSlotToContainer(new Slot(craftMatrix, c + r * 3, 8 + c * 18, 110 + r * 18));
+            }
+        }
         for (int r = 0; r < 3; r++) {
             for (int c = 0; c < 9; c++) {
                 addSlotToContainer(new Slot(player.inventory, c + r * 9 + 9, PX + c * 18, PY + r * 18));
@@ -52,6 +65,21 @@ public class ContainerGrid extends Container {
     public boolean canInteractWith(EntityPlayer p) {
         return world.getBlock(x, y, z) == StorageNet.request
                 && p.getDistanceSq(x + 0.5, y + 0.5, z + 0.5) <= 64.0;
+    }
+
+    @Override
+    public void onCraftMatrixChanged(IInventory inv) {
+        craftResult.setInventorySlotContents(0, CraftingManager.getInstance().findMatchingRecipe(craftMatrix, world));
+    }
+
+    @Override
+    public void onContainerClosed(EntityPlayer p) {
+        super.onContainerClosed(p);
+        if (world.isRemote) return;
+        for (int i = 0; i < 9; i++) {
+            ItemStack st = craftMatrix.getStackInSlotOnClosing(i);
+            if (st != null) p.dropPlayerItemWithRandomChoice(st, false);
+        }
     }
 
     // ---------- cliente ----------
@@ -187,26 +215,42 @@ public class ContainerGrid extends Container {
         }
     }
 
-    /** Shift+clique num slot do inventario: manda o stack para a rede. */
+    /** Shift+clique: resultado/grade vao para o inventario; inventario vai para a rede. */
     @Override
     public ItemStack transferStackInSlot(EntityPlayer p, int index) {
         if (world.isRemote) return null;
         Slot slot = (Slot) inventorySlots.get(index);
         if (slot == null || !slot.getHasStack()) return null;
-        StorageNetwork.Net net = StorageNetwork.scan(world, x, y, z);
-        if (!net.valid()) return null;
         ItemStack st = slot.getStack();
         ItemStack orig = st.copy();
-        ItemStack rest = net.insert(st.copy(), null);
-        int after = rest == null ? 0 : rest.stackSize;
-        if (after == st.stackSize) return null;
-        if (after == 0) {
+
+        if (index == 0) {
+            if (!mergeItemStack(st, 10, 46, true)) return null;
+            slot.onSlotChange(st, orig);
+        } else if (index < 10) {
+            if (!mergeItemStack(st, 10, 46, false)) return null;
+        } else {
+            StorageNetwork.Net net = StorageNetwork.scan(world, x, y, z);
+            if (!net.valid()) return null;
+            ItemStack rest = net.insert(st.copy(), null);
+            int after = rest == null ? 0 : rest.stackSize;
+            if (after == st.stackSize) return null;
+            if (after == 0) {
+                slot.putStack(null);
+            } else {
+                st.stackSize = after;
+                slot.onSlotChanged();
+            }
+            forceSend = true;
+            return orig;
+        }
+        if (st.stackSize == 0) {
             slot.putStack(null);
         } else {
-            st.stackSize = after;
             slot.onSlotChanged();
         }
-        forceSend = true;
+        if (st.stackSize == orig.stackSize) return null;
+        slot.onPickupFromSlot(p, st);
         return orig;
     }
 }

@@ -11,7 +11,7 @@ Sem discos, sem energia, sem canais.
 - **Import Cable**: puxa itens do inventario encostado e manda para a rede.
 - **Export Cable**: tira da rede o item do filtro e coloca no inventario encostado.
   Clique direito com um item na mao para definir o filtro. Agachado + mao vazia limpa o filtro.
-- **Request Table**: a tela da rede. Mostra tudo que esta nos baus ligados.
+- **Request Table**: a tela da rede. Mostra tudo que esta nos baus ligados e tem uma grade de crafting 3x3.
 
 ## Como montar
 Master + cabos ate a Request Table + Link Cable encostado em cada bau.
@@ -21,7 +21,8 @@ Master + cabos ate a Request Table + Link Cable encostado em cada bau.
 - Shift + clique esquerdo: manda o stack direto para o inventario.
 - Com um item no cursor, clique na lista: guarda tudo (direito: guarda 1).
 - Shift + clique num item do seu inventario: guarda na rede.
-- Barra de busca no topo; botoes ^ e v (ou roda do mouse) para rolar.
+- Barra de busca; botoes ^ e v (ou roda do mouse) para rolar.
+- A grade 3x3 faz crafting normal. Shift + clique no resultado manda para o inventario.
 
 ## Receitas
 - Cabo (x4): ferro, redstone, ferro (em linha).
@@ -36,6 +37,6 @@ Master + cabos ate a Request Table + Link Cable encostado em cada bau.
 3. Baixe o artefato **StorageNet-jar** e coloque o .jar na pasta `mods`.
 
 ## Creditos
-As texturas dos blocos vem do mod Simple Storage Network (autores MrRiegel e Lothrazar).
+As texturas dos blocos e da tela vem do mod Simple Storage Network (autores MrRiegel e Lothrazar).
 O codigo do Storage Net e original. Se for publicar o mod, confira a licenca do Simple Storage Network
 e mantenha os creditos.

@@ -3,6 +3,7 @@ package com.storagenet;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
+import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
@@ -23,6 +24,11 @@ public class StorageNet {
     @Instance(MODID)
     public static StorageNet instance;
 
+    @SidedProxy(clientSide = "com.storagenet.ClientProxy", serverSide = "com.storagenet.CommonProxy")
+    public static CommonProxy proxy;
+
+    public static int cableRenderId = -1;
+
     public static SimpleNetworkWrapper NET;
     public static Block master;
     public static Block cable;
@@ -40,10 +46,11 @@ public class StorageNet {
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent e) {
-        master = new BlockNode("master", TileMaster.class);
-        cable = new BlockNode("cable", TileCable.class);
-        link = new BlockNode("link_cable", TileLinkCable.class);
-        importCable = new BlockNode("import_cable", TileImport.class);
+        proxy.registerRenderers();
+        master = new BlockNode("master", TileMaster.class, BlockNode.CUBE);
+        cable = new BlockNode("cable", TileCable.class, BlockNode.CABLE);
+        link = new BlockNode("link_cable", TileLinkCable.class, BlockNode.CABLE_INV);
+        importCable = new BlockNode("import_cable", TileImport.class, BlockNode.CABLE_INV);
         exportCable = new BlockExport();
         request = new BlockRequest();
 

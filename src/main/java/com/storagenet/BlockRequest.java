@@ -6,7 +6,7 @@ import net.minecraft.world.World;
 /** Request Table: o terminal para ver e pegar os itens da rede. */
 public class BlockRequest extends BlockNode {
     public BlockRequest() {
-        super("request", TileRequest.class);
+        super("request", TileRequest.class, BlockNode.CUBE);
     }
 
     @Override
