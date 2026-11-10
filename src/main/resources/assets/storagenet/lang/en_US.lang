@@ -1,0 +1,10 @@
+itemGroup.storagenet=Storage Net
+tile.storagenet.cable.name=Storage Cable
+tile.storagenet.drive.name=Disk Drive
+tile.storagenet.grid.name=Storage Grid
+item.storagenet.disk.1k.name=Storage Disk (1K)
+item.storagenet.disk.4k.name=Storage Disk (4K)
+item.storagenet.disk.16k.name=Storage Disk (16K)
+item.storagenet.disk.64k.name=Storage Disk (64K)
+gui.storagenet.grid=Grid
+gui.storagenet.amount=Amount: %d

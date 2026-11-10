@@ -1,0 +1,10 @@
+itemGroup.storagenet=Storage Net
+tile.storagenet.cable.name=Cabo de Armazenamento
+tile.storagenet.drive.name=Disk Drive
+tile.storagenet.grid.name=Grid de Armazenamento
+item.storagenet.disk.1k.name=Disco de Armazenamento (1K)
+item.storagenet.disk.4k.name=Disco de Armazenamento (4K)
+item.storagenet.disk.16k.name=Disco de Armazenamento (16K)
+item.storagenet.disk.64k.name=Disco de Armazenamento (64K)
+gui.storagenet.grid=Grid
+gui.storagenet.amount=Quantidade: %d
