@@ -3,6 +3,7 @@ package com.storagenet;
 import cpw.mods.fml.common.network.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.Map;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -22,6 +23,26 @@ public class StackEntry {
         this.dmg = dmg;
         this.count = count;
         this.tag = tag;
+    }
+
+    public static StackEntry of(ItemStack s, int count) {
+        NBTTagCompound t = s.hasTagCompound() ? (NBTTagCompound) s.getTagCompound().copy() : null;
+        return new StackEntry(Item.getIdFromItem(s.getItem()), s.getItemDamage(), count, t);
+    }
+
+    public String key() {
+        return id + ":" + dmg + ":" + (tag == null ? 0 : tag.hashCode());
+    }
+
+    /** Soma 'e' no mapa, juntando com o que ja existe do mesmo item. */
+    public static void add(Map<String, StackEntry> out, StackEntry e) {
+        String k = e.key();
+        StackEntry ex = out.get(k);
+        if (ex != null && ex.same(e)) {
+            ex.count += e.count;
+        } else {
+            out.put(k, e);
+        }
     }
 
     public ItemStack toStack(int size) {

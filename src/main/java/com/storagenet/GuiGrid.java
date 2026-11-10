@@ -51,7 +51,7 @@ public class GuiGrid extends GuiContainer {
     public void initGui() {
         super.initGui();
         Keyboard.enableRepeatEvents(true);
-        search = new GuiTextField(fontRendererObj, guiLeft + 50, guiTop + 6, 124, 12);
+        search = new GuiTextField(fontRendererObj, guiLeft + 88, guiTop + 6, 86, 12);
         search.setMaxStringLength(32);
         search.setFocused(false);
         buttonList.add(new GuiButton(0, guiLeft + 180, guiTop + LY, 12, 20, "^"));
@@ -165,7 +165,10 @@ public class GuiGrid extends GuiContainer {
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
     protected void drawGuiContainerForegroundLayer(int mx, int my) {
-        fontRendererObj.drawString(StatCollector.translateToLocal("gui.storagenet.grid"), LX, 8, 0x404040);
+        fontRendererObj.drawString(StatCollector.translateToLocal("tile.storagenet.request.name"), LX, 8, 0x404040);
+        if (grid.status != 0) {
+            fontRendererObj.drawSplitString(StatCollector.translateToLocal("gui.storagenet.status." + grid.status), LX + 4, LY + 4, 150, 0x8B0000);
+        }
         int idx = indexAt(mx, my);
         if (idx >= 0 && idx < view.size()) {
             Row row = view.get(idx);

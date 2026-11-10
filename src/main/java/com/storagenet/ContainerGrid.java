@@ -22,10 +22,12 @@ public class ContainerGrid extends Container {
     // lado cliente
     public volatile List<StackEntry> entries = new ArrayList<StackEntry>();
     public volatile int version = 0;
+    public volatile int status = 0;
     private List<StackEntry> building;
 
     // lado servidor
     private List<StackEntry> lastSent;
+    private int lastStatus = -1;
     private int tick = 0;
     private boolean forceSend = true;
     private final ConcurrentLinkedQueue<MessageGridClick> clicks = new ConcurrentLinkedQueue<MessageGridClick>();
@@ -48,7 +50,7 @@ public class ContainerGrid extends Container {
 
     @Override
     public boolean canInteractWith(EntityPlayer p) {
-        return world.getBlock(x, y, z) == StorageNet.grid
+        return world.getBlock(x, y, z) == StorageNet.request
                 && p.getDistanceSq(x + 0.5, y + 0.5, z + 0.5) <= 64.0;
     }
 
@@ -58,6 +60,7 @@ public class ContainerGrid extends Container {
         if (building == null) return;
         building.addAll(m.entries);
         if (m.last) {
+            status = m.status;
             entries = building;
             building = null;
             version++;
@@ -81,10 +84,13 @@ public class ContainerGrid extends Container {
         }
 
         if (forceSend || ++tick % 10 == 0) {
-            List<StackEntry> now = StorageNetwork.list(StorageNetwork.findDrives(world, x, y, z));
-            if (forceSend || !sameList(now, lastSent)) {
-                send(now);
+            StorageNetwork.Net net = StorageNetwork.scan(world, x, y, z);
+            List<StackEntry> now = net.valid() ? net.list() : new ArrayList<StackEntry>();
+            int st = net.status();
+            if (forceSend || st != lastStatus || !sameList(now, lastSent)) {
+                send(now, st);
                 lastSent = now;
+                lastStatus = st;
             }
             forceSend = false;
         }
@@ -100,7 +106,7 @@ public class ContainerGrid extends Container {
         return true;
     }
 
-    private void send(List<StackEntry> list) {
+    private void send(List<StackEntry> list, int st) {
         EntityPlayerMP mp = (EntityPlayerMP) player;
         List<StackEntry> batch = new ArrayList<StackEntry>();
         int bytes = 0;
@@ -109,7 +115,7 @@ public class ContainerGrid extends Container {
             int s = e.byteSize();
             if (s > 30000) continue;
             if (bytes + s > 20000 && !batch.isEmpty()) {
-                StorageNet.NET.sendTo(new MessageGridList(first, false, batch), mp);
+                StorageNet.NET.sendTo(new MessageGridList(first, false, st, batch), mp);
                 first = false;
                 batch = new ArrayList<StackEntry>();
                 bytes = 0;
@@ -117,7 +123,7 @@ public class ContainerGrid extends Container {
             batch.add(e);
             bytes += s;
         }
-        StorageNet.NET.sendTo(new MessageGridList(first, true, batch), mp);
+        StorageNet.NET.sendTo(new MessageGridList(first, true, st, batch), mp);
     }
 
     private void setCursor(EntityPlayerMP mp, ItemStack s) {
@@ -132,7 +138,8 @@ public class ContainerGrid extends Container {
             forceSend = true;
             return;
         }
-        List<TileDrive> drives = StorageNetwork.findDrives(world, x, y, z);
+        StorageNetwork.Net net = StorageNetwork.scan(world, x, y, z);
+        if (!net.valid()) return;
         ItemStack cursor = mp.inventory.getItemStack();
 
         switch (c.mode) {
@@ -144,12 +151,12 @@ public class ContainerGrid extends Container {
                 if (c.mode != MessageGridClick.TAKE_TO_INV && cursor != null) return;
                 int max = proto.getMaxStackSize();
                 int amount = c.mode == MessageGridClick.TAKE_HALF ? Math.max(1, (max + 1) / 2) : max;
-                ItemStack out = StorageNetwork.extract(drives, proto, amount);
+                ItemStack out = net.extract(proto, amount, null);
                 if (out == null) return;
                 if (c.mode == MessageGridClick.TAKE_TO_INV) {
                     mp.inventory.addItemStackToInventory(out);
                     if (out.stackSize > 0) {
-                        ItemStack rest = StorageNetwork.insert(drives, out);
+                        ItemStack rest = net.insert(out, null);
                         if (rest != null) mp.dropPlayerItemWithRandomChoice(rest, false);
                     }
                 } else {
@@ -159,7 +166,7 @@ public class ContainerGrid extends Container {
             }
             case MessageGridClick.INSERT_ALL: {
                 if (cursor == null) return;
-                ItemStack rest = StorageNetwork.insert(drives, cursor.copy());
+                ItemStack rest = net.insert(cursor.copy(), null);
                 setCursor(mp, rest);
                 break;
             }
@@ -167,7 +174,7 @@ public class ContainerGrid extends Container {
                 if (cursor == null) return;
                 ItemStack one = cursor.copy();
                 one.stackSize = 1;
-                ItemStack rest = StorageNetwork.insert(drives, one);
+                ItemStack rest = net.insert(one, null);
                 if (rest == null) {
                     cursor.stackSize--;
                     if (cursor.stackSize <= 0) cursor = null;
@@ -186,9 +193,11 @@ public class ContainerGrid extends Container {
         if (world.isRemote) return null;
         Slot slot = (Slot) inventorySlots.get(index);
         if (slot == null || !slot.getHasStack()) return null;
+        StorageNetwork.Net net = StorageNetwork.scan(world, x, y, z);
+        if (!net.valid()) return null;
         ItemStack st = slot.getStack();
         ItemStack orig = st.copy();
-        ItemStack rest = StorageNetwork.insert(StorageNetwork.findDrives(world, x, y, z), st.copy());
+        ItemStack rest = net.insert(st.copy(), null);
         int after = rest == null ? 0 : rest.stackSize;
         if (after == st.stackSize) return null;
         if (after == 0) {

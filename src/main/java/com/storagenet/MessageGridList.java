@@ -13,14 +13,16 @@ import net.minecraft.entity.player.EntityPlayer;
 public class MessageGridList implements IMessage {
     public boolean first;
     public boolean last;
+    public int status;
     public List<StackEntry> entries = new ArrayList<StackEntry>();
 
     public MessageGridList() {
     }
 
-    public MessageGridList(boolean first, boolean last, List<StackEntry> entries) {
+    public MessageGridList(boolean first, boolean last, int status, List<StackEntry> entries) {
         this.first = first;
         this.last = last;
+        this.status = status;
         this.entries = entries;
     }
 
@@ -28,6 +30,7 @@ public class MessageGridList implements IMessage {
     public void toBytes(ByteBuf buf) {
         buf.writeBoolean(first);
         buf.writeBoolean(last);
+        buf.writeByte(status);
         buf.writeInt(entries.size());
         for (StackEntry e : entries) e.write(buf);
     }
@@ -36,6 +39,7 @@ public class MessageGridList implements IMessage {
     public void fromBytes(ByteBuf buf) {
         first = buf.readBoolean();
         last = buf.readBoolean();
+        status = buf.readByte();
         int n = buf.readInt();
         entries = new ArrayList<StackEntry>();
         for (int i = 0; i < n; i++) entries.add(StackEntry.read(buf));

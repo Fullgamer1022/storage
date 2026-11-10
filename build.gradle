@@ -6,6 +6,7 @@ buildscript {
         maven { url = "https://jitpack.io" }
     }
     dependencies {
+        // fork do ForgeGradle 1.2 com o download do Minecraft consertado
         classpath 'com.github.GTNewHorizons:ForgeGradle:1.2.11'
     }
 }
