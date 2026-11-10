@@ -34,3 +34,8 @@ Master + cabos ate a Request Table + Link Cable encostado em cada bau.
 1. Envie esta pasta para um repositorio no GitHub.
 2. Aba **Actions** > **Build mod** (roda sozinho a cada envio).
 3. Baixe o artefato **StorageNet-jar** e coloque o .jar na pasta `mods`.
+
+## Creditos
+As texturas dos blocos vem do mod Simple Storage Network (autores MrRiegel e Lothrazar).
+O codigo do Storage Net e original. Se for publicar o mod, confira a licenca do Simple Storage Network
+e mantenha os creditos.
