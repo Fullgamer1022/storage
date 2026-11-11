@@ -3,33 +3,19 @@
 Mod de armazenamento original, no estilo do Simple Storage Network: **os seus baus sao o armazenamento**.
 Sem discos, sem energia, sem canais.
 
-## Blocos
-- **Master**: o coracao da rede. Precisa de **exatamente UM** por rede.
-- **Cabo**: liga as partes da rede (blocos encostados lado a lado se conectam).
-- **Link Cable** (cabo de ligacao): coloque encostado num bau (ou outro inventario) para ele entrar na rede.
-  Baus duplos funcionam.
-- **Import Cable**: puxa itens do inventario encostado e manda para a rede.
-- **Export Cable**: tira da rede o item do filtro e coloca no inventario encostado.
-  Clique direito com um item na mao para definir o filtro. Agachado + mao vazia limpa o filtro.
-- **Request Table**: a tela da rede. Mostra tudo que esta nos baus ligados e tem uma grade de crafting 3x3.
+## Blocos e itens
+- **Master**: o coracao da rede. Exatamente UM por rede.
+- **Cabo**: liga as partes da rede.
+- **Link Cable**: encostado num bau/inventario, o coloca na rede. Clique direito abre filtros, lista branca/negra, **prioridade** (maior primeiro) e direcao (entrada/saida/ambos).
+- **Import / Export Cable**: movem itens. Clique direito abre a tela com 18 filtros e 4 slots de **upgrade**.
+- **Request Table**: tela da rede com busca (`@mod`, `#tooltip`, `$oredict`), ordenacao (nome/mod/quantidade, crescente/decrescente) e crafting 3x3 que guarda a grade e repoe os ingredientes pela rede. O quadradinho ao lado da grade manda a grade para a rede.
+- **Upgrades** (1 de cada tipo por cabo, ate 4 por slot): Speed, Operation, Stack, Stock.
+- **Storage Remote** (alcance configuravel, mesma dimensao) e **Advanced Storage Remote** (sem limite): clique direito num Master para ligar, clique no ar para abrir.
 
-## Como montar
-Master + cabos ate a Request Table + Link Cable encostado em cada bau.
-
-### Na Request Table
-- Clique esquerdo num item: pega 1 stack.  Clique direito: pega metade do stack.
-- Shift + clique esquerdo: manda o stack direto para o inventario.
-- Com um item no cursor, clique na lista: guarda tudo (direito: guarda 1).
-- Shift + clique num item do seu inventario: guarda na rede.
-- Barra de busca; botoes ^ e v (ou roda do mouse) para rolar.
-- A grade 3x3 faz crafting normal. Shift + clique no resultado manda para o inventario.
-
-## Receitas
-- Cabo (x4): ferro, redstone, ferro (em linha).
-- Master: ferro e redstone em volta, diamante no meio.
-- Request Table: 3 paineis de vidro / ferro-cabo-ferro / 3 redstone.
-- Link Cable: cabo + bau.  Import Cable: cabo + funil.  Export Cable: cabo + liberador.
-(Veja o metodo init() em StorageNet.java para mudar.)
+### Tela dos cabos
+- Clique num filtro com um item no cursor: define o filtro (o tamanho do stack vira a quantidade do upgrade Stock).
+- Mao vazia: clique = comparar dano (M), clique direito = comparar OreDict (O), shift+clique = limpar.
+- Botao I: copia os itens do inventario encostado para o filtro.
 
 ## Como compilar sem computador
 1. Envie esta pasta para um repositorio no GitHub.
