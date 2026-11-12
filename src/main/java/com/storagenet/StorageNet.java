@@ -1,11 +1,13 @@
 package com.storagenet;
 
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.event.FMLServerStoppedEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.common.registry.GameRegistry;
@@ -39,6 +41,9 @@ public class StorageNet {
     public static Block request;
     public static Item upgrade;
     public static Item remote;
+    public static Block fluxPlug;
+    public static Block fluxPoint;
+    public static Block fluxStorage;
     public static int remoteRange = 128;
 
     public static final CreativeTabs tab = new CreativeTabs("storagenet") {
@@ -81,6 +86,17 @@ public class StorageNet {
         GameRegistry.registerTileEntity(TileExport.class, MODID + ":export_cable");
         GameRegistry.registerTileEntity(TileRequest.class, MODID + ":request");
 
+        // Energia sem fio (estilo Flux Networks)
+        fluxPlug = new BlockFlux("flux_plug", TileFluxPlug.class);
+        fluxPoint = new BlockFlux("flux_point", TileFluxPoint.class);
+        fluxStorage = new BlockFlux("flux_storage", TileFluxStorage.class);
+        GameRegistry.registerBlock(fluxPlug, "flux_plug");
+        GameRegistry.registerBlock(fluxPoint, "flux_point");
+        GameRegistry.registerBlock(fluxStorage, "flux_storage");
+        GameRegistry.registerTileEntity(TileFluxPlug.class, MODID + ":flux_plug");
+        GameRegistry.registerTileEntity(TileFluxPoint.class, MODID + ":flux_point");
+        GameRegistry.registerTileEntity(TileFluxStorage.class, MODID + ":flux_storage");
+
         NET = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
         NET.registerMessage(MessageGridList.Handler.class, MessageGridList.class, 0, Side.CLIENT);
         NET.registerMessage(MessageGridClick.Handler.class, MessageGridClick.class, 1, Side.SERVER);
@@ -90,6 +106,7 @@ public class StorageNet {
     @EventHandler
     public void init(FMLInitializationEvent e) {
         NetworkRegistry.INSTANCE.registerGuiHandler(instance, new GuiHandler());
+        FMLCommonHandler.instance().bus().register(new FluxManager());
 
         // Receitas iguais as do Simple Storage Network original
         GameRegistry.addRecipe(new ItemStack(cable, 8), "SSS", "II ", "SSS",
@@ -116,5 +133,17 @@ public class StorageNet {
         GameRegistry.addRecipe(new ItemStack(remote, 1, 1), "PCP", "MIM", "PDP",
                 'C', Items.blaze_rod, 'I', new ItemStack(remote, 1, 0), 'M', master,
                 'D', Items.magma_cream, 'P', Items.ender_pearl);
+        // Energia sem fio
+        GameRegistry.addRecipe(new ItemStack(fluxPlug), "ORO", "RPR", "ORO",
+                'O', Blocks.obsidian, 'R', Items.redstone, 'P', Items.ender_pearl);
+        GameRegistry.addRecipe(new ItemStack(fluxPoint), "ORO", "RPR", "ORO",
+                'O', Blocks.obsidian, 'R', Items.redstone, 'P', Items.ender_eye);
+        GameRegistry.addRecipe(new ItemStack(fluxStorage), "OIO", "IRI", "OIO",
+                'O', Blocks.obsidian, 'I', Items.iron_ingot, 'R', Blocks.redstone_block);
+    }
+
+    @EventHandler
+    public void serverStopped(FMLServerStoppedEvent e) {
+        FluxManager.clear();
     }
 }

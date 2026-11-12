@@ -26,3 +26,17 @@ Sem discos, sem energia, sem canais.
 As texturas dos blocos e da tela vem do mod Simple Storage Network (autores MrRiegel e Lothrazar).
 O codigo do Storage Net e original. Se for publicar o mod, confira a licenca do Simple Storage Network
 e mantenha os creditos.
+
+
+## Energia sem fio (Flux)
+- **Flux Plug**: encoste num gerador ou bateria. Ele puxa a energia (RF) para a rede.
+- **Flux Point**: encoste numa maquina. Ele entrega a energia da rede.
+- **Flux Storage**: guarda a energia que sobra e devolve quando falta.
+- A rede e escolhida pela **cor**: clique direito no bloco com um **corante**. Todos os blocos da mesma cor
+  trocam energia, em qualquer distancia e qualquer dimensao. Clique com a mao vazia mostra a cor (e a carga do Storage).
+- Funciona com mods que usam RF (Thermal Expansion, Ender IO, Mekanism, Immersive Engineering...). Nao suporta EU (IC2).
+- Cada bloco move ate 1.000.000 RF por tick.
+- Receitas: Plug e Point = obsidiana + redstone com ender pearl (Plug) ou olho do fim (Point) no meio;
+  Storage = obsidiana + ferro + bloco de redstone.
+
+Creditos extras: texturas do Flux Networks (BloCamLimb, Ollie Lansdell). Codigo original.
