@@ -13,6 +13,14 @@ public abstract class TileFlux extends TileEntity {
 
     public int freq = 0;
 
+    /** Rede Flux (nome/senha). 0 = nenhuma: vale a cor (freq), como antes. */
+    public int network = 0;
+
+    /** Grupo de energia: a rede, se houver, senao a cor. */
+    public int key() {
+        return network > 0 ? 16 + network : freq;
+    }
+
     /** Quanto de energia este bloco pode entregar a rede agora (sem tirar nada). */
     public abstract int available();
 
@@ -51,12 +59,14 @@ public abstract class TileFlux extends TileEntity {
     public void readFromNBT(NBTTagCompound nbt) {
         super.readFromNBT(nbt);
         freq = nbt.getInteger("Freq") & 15;
+        network = Math.max(0, nbt.getInteger("Net"));
     }
 
     @Override
     public void writeToNBT(NBTTagCompound nbt) {
         super.writeToNBT(nbt);
         nbt.setInteger("Freq", freq);
+        nbt.setInteger("Net", network);
     }
 
     @Override

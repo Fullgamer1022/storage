@@ -39,4 +39,4 @@ e mantenha os creditos.
 - Receitas: Plug e Point = obsidiana + redstone com ender pearl (Plug) ou olho do fim (Point) no meio;
   Storage = obsidiana + ferro + bloco de redstone.
 
-Creditos extras: texturas do Flux Networks (BloCamLimb, Ollie Lansdell). Codigo original.
+Creditos extras: texturas e modelos dos blocos Flux vem do Flux Networks (BloCamLimb, Ollie Lansdell). O codigo e original.

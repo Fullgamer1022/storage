@@ -26,16 +26,20 @@ public class FluxManager {
 
     @SubscribeEvent
     public void onServerTick(TickEvent.ServerTickEvent e) {
-        if (e.phase != TickEvent.Phase.END || ALL.isEmpty()) return;
+        if (e.phase != TickEvent.Phase.END) return;
+        FluxNetworks.processQueue();
+        if (ALL.isEmpty()) return;
         List<TileFlux> snapshot = new ArrayList<TileFlux>(ALL);
-        for (int f = 0; f < 16; f++) {
+        java.util.Set<Integer> keys = new java.util.TreeSet<Integer>();
+        for (TileFlux t : snapshot) keys.add(Integer.valueOf(t.key()));
+        for (int f : keys) {
             List<TileFlux> plugs = new ArrayList<TileFlux>();
             List<TileFlux> points = new ArrayList<TileFlux>();
             List<TileFlux> stores = new ArrayList<TileFlux>();
             for (TileFlux t : snapshot) {
-                if (t.freq != f || t.isInvalid() || t.getWorldObj() == null) continue;
+                if (t.key() != f || t.isInvalid() || t.getWorldObj() == null) continue;
                 if (t instanceof TileFluxPlug) plugs.add(t);
-                else if (t instanceof TileFluxPoint) points.add(t);
+                else if (t instanceof TileFluxPoint || t instanceof TileFluxController) points.add(t);
                 else if (t instanceof TileFluxStorage) stores.add(t);
             }
             if (plugs.isEmpty() && stores.isEmpty()) continue;

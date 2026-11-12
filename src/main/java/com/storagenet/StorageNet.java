@@ -31,6 +31,7 @@ public class StorageNet {
     public static CommonProxy proxy;
 
     public static int cableRenderId = -1;
+    public static int fluxRenderId = -1;
 
     public static SimpleNetworkWrapper NET;
     public static Block master;
@@ -87,9 +88,9 @@ public class StorageNet {
         GameRegistry.registerTileEntity(TileRequest.class, MODID + ":request");
 
         // Energia sem fio (estilo Flux Networks)
-        fluxPlug = new BlockFlux("flux_plug", TileFluxPlug.class);
-        fluxPoint = new BlockFlux("flux_point", TileFluxPoint.class);
-        fluxStorage = new BlockFlux("flux_storage", TileFluxStorage.class);
+        fluxPlug = new BlockFlux("flux_plug", TileFluxPlug.class, BlockFlux.PLUG);
+        fluxPoint = new BlockFlux("flux_point", TileFluxPoint.class, BlockFlux.POINT);
+        fluxStorage = new BlockFlux("flux_storage", TileFluxStorage.class, BlockFlux.STORAGE);
         GameRegistry.registerBlock(fluxPlug, "flux_plug");
         GameRegistry.registerBlock(fluxPoint, "flux_point");
         GameRegistry.registerBlock(fluxStorage, "flux_storage");
@@ -101,6 +102,9 @@ public class StorageNet {
         NET.registerMessage(MessageGridList.Handler.class, MessageGridList.class, 0, Side.CLIENT);
         NET.registerMessage(MessageGridClick.Handler.class, MessageGridClick.class, 1, Side.SERVER);
         NET.registerMessage(MessageCable.Handler.class, MessageCable.class, 2, Side.SERVER);
+
+        // Redes Flux (nome + senha), Flux Core, Configurator e Controller
+        FluxSetup.init();
     }
 
     @EventHandler

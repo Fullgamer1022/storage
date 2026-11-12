@@ -7,5 +7,7 @@ public class ClientProxy extends CommonProxy {
     public void registerRenderers() {
         StorageNet.cableRenderId = RenderingRegistry.getNextAvailableRenderId();
         RenderingRegistry.registerBlockHandler(new CableRenderer());
+        StorageNet.fluxRenderId = RenderingRegistry.getNextAvailableRenderId();
+        RenderingRegistry.registerBlockHandler(new FluxRenderer());
     }
 }
