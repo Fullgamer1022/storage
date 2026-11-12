@@ -6,32 +6,38 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 
-/** Base dos blocos de energia sem fio. A "frequencia" (0-15) e a cor do corante. */
 public abstract class TileFlux extends TileEntity {
-    /** Maximo de RF por tick que cada bloco move. */
     public static final int LIMIT = 1000000;
 
-    public int freq = 0;
+    public int freq;
+    public int network;
+    public int priority;
+    public int limit = LIMIT;
+    public boolean unlimited;
+    public String customName = "";
 
-    /** Rede Flux (nome/senha). 0 = nenhuma: vale a cor (freq), como antes. */
-    public int network = 0;
-
-    /** Grupo de energia: a rede, se houver, senao a cor. */
     public int key() {
         return network > 0 ? 16 + network : freq;
     }
 
-    /** Quanto de energia este bloco pode entregar a rede agora (sem tirar nada). */
+    public int maxTransfer() {
+        return unlimited ? LIMIT : Math.max(0, Math.min(limit, LIMIT));
+    }
+
+    public void setConfig(String name, int prio, int lim, boolean unl) {
+        customName = name == null ? "" : (name.length() > 24 ? name.substring(0, 24) : name);
+        priority = Math.max(-99, Math.min(99, prio));
+        limit = Math.max(0, Math.min(LIMIT, lim));
+        unlimited = unl;
+    }
+
     public abstract int available();
 
-    /** Tira de verdade ate n RF e retorna quanto saiu. */
-    public abstract int take(int n);
+    public abstract int take(int amount);
 
-    /** Quanto de energia este bloco aceita agora (sem colocar nada). */
     public abstract int demand();
 
-    /** Coloca de verdade ate n RF e retorna quanto entrou. */
-    public abstract int give(int n);
+    public abstract int give(int amount);
 
     @Override
     public boolean canUpdate() {
@@ -56,24 +62,32 @@ public abstract class TileFlux extends TileEntity {
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound nbt) {
-        super.readFromNBT(nbt);
-        freq = nbt.getInteger("Freq") & 15;
-        network = Math.max(0, nbt.getInteger("Net"));
+    public void readFromNBT(NBTTagCompound tag) {
+        super.readFromNBT(tag);
+        freq = Math.max(0, Math.min(15, tag.getInteger("Freq")));
+        network = Math.max(0, tag.getInteger("Net"));
+        priority = Math.max(-99, Math.min(99, tag.getInteger("Prio")));
+        limit = tag.hasKey("Limit") ? Math.max(0, Math.min(LIMIT, tag.getInteger("Limit"))) : LIMIT;
+        unlimited = tag.getBoolean("Unl");
+        customName = tag.getString("CName");
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound nbt) {
-        super.writeToNBT(nbt);
-        nbt.setInteger("Freq", freq);
-        nbt.setInteger("Net", network);
+    public void writeToNBT(NBTTagCompound tag) {
+        super.writeToNBT(tag);
+        tag.setInteger("Freq", freq);
+        tag.setInteger("Net", network);
+        tag.setInteger("Prio", priority);
+        tag.setInteger("Limit", limit);
+        tag.setBoolean("Unl", unlimited);
+        tag.setString("CName", customName == null ? "" : customName);
     }
 
     @Override
     public Packet getDescriptionPacket() {
-        NBTTagCompound t = new NBTTagCompound();
-        writeToNBT(t);
-        return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, t);
+        NBTTagCompound tag = new NBTTagCompound();
+        writeToNBT(tag);
+        return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, tag);
     }
 
     @Override

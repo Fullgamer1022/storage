@@ -8,7 +8,6 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
-/** Registra tudo da parte de redes Flux. Chame FluxSetup.init() uma vez, depois de criar StorageNet.NET. */
 public class FluxSetup {
     public static Item fluxCore;
     public static Item fluxConfigurator;
@@ -22,14 +21,18 @@ public class FluxSetup {
         GameRegistry.registerItem(fluxCore, "flux_core");
         GameRegistry.registerItem(fluxConfigurator, "flux_configurator");
         GameRegistry.registerBlock(fluxController, "flux_controller");
-        GameRegistry.registerTileEntity(TileFluxController.class, StorageNet.MODID + ":flux_controller");
+        GameRegistry.registerTileEntity(TileFluxController.class, "storagenet:flux_controller");
 
         StorageNet.NET.registerMessage(MessageNetwork.Handler.class, MessageNetwork.class, 20, Side.SERVER);
+        StorageNet.NET.registerMessage(MessageFluxAction.Handler.class, MessageFluxAction.class, 21, Side.SERVER);
+        StorageNet.NET.registerMessage(MessageFluxTile.Handler.class, MessageFluxTile.class, 22, Side.SERVER);
+        StorageNet.NET.registerMessage(MessageFluxSync.Handler.class, MessageFluxSync.class, 23, Side.CLIENT);
 
-        GameRegistry.addRecipe(new ItemStack(fluxCore), "ORO", "RPR", "ORO", 'O', Blocks.obsidian, 'R',
-                Items.redstone, 'P', Items.ender_pearl);
-        GameRegistry.addRecipe(new ItemStack(fluxConfigurator), "  C", " S ", "S  ", 'C', fluxCore, 'S', Items.stick);
-        GameRegistry.addRecipe(new ItemStack(fluxController), "OCO", "ORO", "OOO", 'O', Blocks.obsidian, 'C',
-                fluxCore, 'R', Blocks.redstone_block);
+        GameRegistry.addRecipe(new ItemStack(fluxCore), new Object[] { "ORO", "RPR", "ORO",
+                'O', Blocks.obsidian, 'R', Items.redstone, 'P', Items.ender_pearl });
+        GameRegistry.addRecipe(new ItemStack(fluxConfigurator), new Object[] { "  C", " S ", "S  ",
+                'C', fluxCore, 'S', Items.stick });
+        GameRegistry.addRecipe(new ItemStack(fluxController), new Object[] { "OCO", "ORO", "OOO",
+                'O', Blocks.obsidian, 'C', fluxCore, 'R', Blocks.redstone_block });
     }
 }
