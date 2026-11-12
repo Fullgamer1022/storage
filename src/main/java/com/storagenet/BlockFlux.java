@@ -169,6 +169,11 @@ public class BlockFlux extends BlockContainer {
             TileFluxStorage s = (TileFluxStorage) t;
             p.addChatMessage(new ChatComponentText(s.stored + " / " + TileFluxStorage.CAPACITY + " RF"));
         }
+        if (t instanceof TileFluxPlug) {
+            p.addChatMessage(new ChatComponentText("Plug: pode puxar " + t.available() + " RF/t"));
+        } else if (t instanceof TileFluxPoint) {
+            p.addChatMessage(new ChatComponentText("Point: aceita " + t.demand() + " RF/t"));
+        }
         return true;
     }
 }
